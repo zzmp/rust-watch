@@ -25,6 +25,9 @@ watch () {
           echo Rebuilding:
           echo '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
           $2
+          if [ ! $? -eq 0 ]; then
+            echo ""            
+          fi
         fi
       done
     done
