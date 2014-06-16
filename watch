@@ -1,0 +1,40 @@
+#!/bin/sh
+
+# This script will recompile a rust project using `make`
+# every time something in the specified directory changes.
+#
+# It is designed to be used in a rust-empty style crate.
+# $1: Directory to watch
+#     src by default
+# $2: Command to execute
+#     `make` by default
+
+# Determine target architecture
+TARGET=`rustc --version 2> /dev/null | awk '/host:/ { FS = " "; print $2 }'`
+
+# Watch files in infinite loop
+watch () {
+  if [ -e "$1" ]; then
+    echo "Watching files in $1.."
+    CTIME=$(date -j -f "%a %b %d %T %Z %Y" "`date`" "+%s")
+    while :; do
+      for f in `find $1 -type f -name "*.rs"`; do
+        eval $(stat -s $f)
+        if [ $st_mtime -gt $CTIME ]; then
+          CTIME=$(date -j -f "%a %b %d %T %Z %Y" "`date`" "+%s")
+          echo Rebuilding:
+          echo '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+          $2
+        fi
+      done
+    done
+  else
+    echo "$1 is not a valid directory"
+  fi
+}
+
+# Capture user input with defaults
+DIR=${1:-src}
+CMD=${2:-make}
+
+watch $DIR $CMD
