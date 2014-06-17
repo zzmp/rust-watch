@@ -40,4 +40,4 @@ watch () {
 DIR=${1:-src}
 CMD=${2:-make}
 
-watch $DIR $CMD
+watch "$DIR" "$CMD"
